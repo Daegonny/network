@@ -61,6 +61,7 @@ while true; do
 
         #Conversão de hexa textual para binário
         xxd -r -p frame_r.hex > frame_r.dat
+        xxd -r -p frame_r.hex > frame_r.txt
 
         #Exibe o quadro Ethernet no formato HEX Dump e textual
         cat frame_r.hex
@@ -69,23 +70,27 @@ while true; do
         cat frame_r.dat
         printf "\n"
 
+        # sed '1 s/.\{,14\}//' frame_r.txt | sed `cat frame_r.txt | wc -l`'s/.\{,4\}//' > payload.txt
+        sed "s/.\{44\}//" frame_r.hex | sed "s/.\{8\}$//" | xxd -r -p > payload.txt
+
         #sed "s/.\{44\}//" -> remove o cabeçalho (Preamble + MAC Dst + MAC Src + Ethertype = 22 bytes)
         #sed "s/.\{8\}$//" -> remove o CRC (4 bytes)
         cat frame_r.dat | xxd -p | tr -d \\n | sed "s/.\{44\}//" | sed "s/.\{8\}$//" > payload.hex
-        xxd -r -p payload.hex > payload.bin
-        MESSAGE=`cat payload.bin`
 
+
+        #xxd -r -p payload.hex > payload.bin
+        MESSAGE=`cat payload.txt`
     fi
 
     #Entrega o pacote IP (PAYLOAD do quadro Ethernet) para a camada superior
     #echo "Enviando para camada superior..."
     #todo : nc 127.0.0.1 $NET_PORT < payload.bin
-    echo $MESSAGE | nc 127.0.0.1 $NET_PORT
+    nc 127.0.0.1 $NET_PORT < payload.txt
 
     rm frame_r.txt &> /dev/null
     rm frame_r.dat &> /dev/null
     rm frame_r.hex &> /dev/null
     rm payload.hex &> /dev/null
-    #rm payload.bin &> /dev/null
+    rm payload.txt &> /dev/null
     rm frame_r.txt &> /dev/null
 done
