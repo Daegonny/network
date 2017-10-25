@@ -107,16 +107,17 @@ while true; do
 	        #Envia o quadro Ethernet no formato binário textual para o servidor da camada física
 	        nc $SERVER_IP $SERVER_PORT < frame_e.txt
 
+          echo -n "."
+	        sleep 1
 	        if [ $? -eq 0 ]; then
 	            break;
 	        fi
-
-	        echo -n "."
-	        sleep 1
 	    done
-
+      echo "Pacote enviado."
+      cat packet.txt
 	    rm frame_e.txt &> /dev/null
 	    rm packet.txt &> /dev/null
 	fi
-	sleep 2
+	sleep 1
+  printf "\n------------------------\n"
 done
